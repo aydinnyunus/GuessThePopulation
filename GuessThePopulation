@@ -1,0 +1,73 @@
+"""    
+--- En Küçük Kareler Yöntemi ile Basit Doğrusal Regresyon ---
+
+
+LİNEER (BASİT DOĞRUSAL) REGRESYONUN HER ADIMININDA NE OLDUĞUNU GÖRMEK
+VE ALGORİTMANIN ANLAŞILMASI AÇISINDAN; HAZIR METODLARDAN KAÇINILARAK,
+ALGORİTMA TAMAMEN EL YORDAMIYLA MANUEL FORMULLER İLE GERÇEKLEŞTİRİLMİŞTİR..
+
+
+"""    KÜTÜPHANELERİ    İMPORT    ET    """
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+"""    MANUEL    OLARAK    VERİ    OLUŞTUR    """
+x = np.array([2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018])
+y = np.array([65022300,65938265,66845635,
+67743052,68626337,69496513,
+70363511,71241080,72137546,
+73058638,73997128,75627384,
+76667864,77695904,78741053,
+79814871,80810525])
+
+sumx , sumx2 , sumy , sumxy, hata, n = 0, 0, 0, 0, 0, np.size(x)
+x2 , xy, normalizedx, normalizedy, denormalizedx, denormalizedy  = np.zeros(shape=(17)),np.zeros(shape=(17)),np.zeros(shape=(17)),np.zeros(shape=(17)),np.zeros(shape=(17)),np.zeros(shape=(17))
+
+"""    X[i]Y[i] , X^2[i]    HESAPLAMALARI    """
+for i in range(0,n):
+    x2[i] = x[i] * x[i]
+    xy[i] = x[i] * y[i]
+    sumx += x[i]
+    sumx2 += x2[i]
+    sumy += y[i]
+    sumxy += xy[i]
+    
+"""    DENKLEMİ    YAZ    """
+print("\n--- En Küçük Kareler Yöntemi ile Basit Doğrusal Regresyon ---"
+    "\nDenklem 1 -> T(y) = n.a + T(x).b         -> ",int(sumy)," = ",n,"a +",int(sumx),"b"
+    "\nDenklem 2 -> T(x*y) = T(x).a + T(x^2).b  -> ",int(sumxy),"= ",int(sumx),"a +",int(sumx2),"b")
+
+
+"""    DENKLEM ÇÖZÜMÜ / ÇÖZÜMDE YOK ETME METODU UYGULANMIŞTIR    """
+yoket = sumx / n
+newt , newb = sumxy - (yoket * sumy), sumx2 - (yoket * sumx)
+a = newt / newb
+b = (sumy - (sumx*a)) / n
+
+print("\na -> ",a,"    b -> ",b,
+    "\nRegresyon  Doğrusu  Denklemi  ->  Y = (",round(a,1),"x )  +  (",round(b,1),")")
+
+
+"""    ÇİZİMİ    GERÇEKLEŞTİR    """
+plt.title("Yıl - Nüfus Doğrusal Regresyon Çizimi")
+plt.scatter(x, y, color = "m", marker ="o", s = 30)
+y_pred = a*x + b
+plt.plot(x, y_pred, color = "g")
+plt.xlabel('YIL')
+plt.ylabel('NÜFUS')
+plt.show()
+
+
+"""    NORMALİZASYON  ve DENORMALİZASYON  UYGULA    0-1  / HATA PAYI HESAPLA   """
+print("\nNormalize X\tDenormalize X\t| Normalize Y\tDenormalize Y")
+for i in range (0,n):
+    normalizedx[i] = (x[i] - np.min(x)) / (np.max(x) - np.min(x)) 
+    normalizedy[i] = (y[i] - np.min(y)) / (np.max(y) - np.min(y))
+    denormalizedx[i] = normalizedx[i] * (np.max(x) - np.min(x)) + np.min(x)
+    denormalizedy[i] = normalizedy[i] * (np.max(y) - np.min(y)) + np.min(y)
+    print(round(normalizedx[i],2),"\t\t",round(denormalizedx[i],2),"\t|",round(normalizedy[i],2),"\t\t",round(denormalizedy[i],2))
+
+tahmin = float(input("Son 17 yılın nüfus sayımına göre;\n"
+                     "Nüfus Tahminini İstediğiniz Yılı Giriniz : "))
+print("\n***",int(tahmin),"YILI İÇİN NÜFUS BEKLENTİSİ",int((tahmin*a)+b),"'dir !!")
